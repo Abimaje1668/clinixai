@@ -236,17 +236,103 @@ document.getElementById("loginForm")
       throw new Error("No authorized ClinixAI profile found.");
     }
 
-    message.style.color = "#15803d";
+    // ======================================
+// ACCOUNT STATUS VERIFICATION
+// ======================================
+
+const accountStatus = String(
+  profile.account_status || ""
+).toLowerCase();
+
+const userRole = String(
+  profile.role || ""
+).toLowerCase();
+
+// Pending users cannot enter dashboards.
+if (accountStatus === "pending") {
+
+  await supabaseClient.auth.signOut();
+
+  message.style.color = "#b45309";
+
+  message.textContent =
+    "Your account has been created successfully. " +
+    "Please wait for administrator approval before accessing ClinixAI.";
+
+  return;
+}
+
+// Suspended users cannot enter dashboards.
+if (accountStatus === "suspended") {
+
+  await supabaseClient.auth.signOut();
+
+  message.style.color = "#dc2626";
+
+  message.textContent =
+    "Your ClinixAI account has been suspended. " +
+    "Please contact your administrator.";
+
+  return;
+}
+
+// Reject unexpected account statuses.
+if (accountStatus !== "active") {
+
+  await supabaseClient.auth.signOut();
+
+  throw new Error(
+    "Your account status could not be verified."
+  );
+}
+
+// ======================================
+// ROLE-BASED DASHBOARD ROUTING
+// ======================================
+
+const roleDashboards = {
+  admin: "./admin.html",
+  physician: "./physician.html",
+  nurse: "./nurse.html",
+  laboratory: "./laboratory.html",
+  hims: "./hims.html"
+};
+
+const destination = roleDashboards[userRole];
+
+if (!destination) {
+
+  await supabaseClient.auth.signOut();
+
+  throw new Error(
+    "Your account has an unrecognized role. Contact your administrator."
+  );
+}
+
+// The staff dashboards have not been created yet.
+// Only the existing administrator dashboard is ready.
+if (userRole !== "admin") {
+
+  await supabaseClient.auth.signOut();
+
+  message.style.color = "#b45309";
+
+  message.textContent =
+    "Your account is active, but your staff dashboard " +
+    "is not available yet. Please contact your administrator.";
+
+  return;
+}
+
+message.style.color = "#15803d";
 
 message.textContent =
-"Welcome, " + profile.username +
-"! Login successful.";
+  "Welcome, " + profile.username +
+  "! Login successful.";
 
 button.textContent = "Opening Dashboard...";
 
-// Allow the success message to appear briefly,
-// then open the Version 3.0 Admin Dashboard.
-window.location.href = "./admin.html";
+window.location.href = destination;
   } catch (error) {
 
     message.style.color = "#dc2626";
