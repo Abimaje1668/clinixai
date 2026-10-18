@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#0284c7">
+
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ClinixAI - Clinical Prescription Assistant</title>
@@ -418,6 +423,19 @@ function generatePrescription() {
 }
 
 </script>
-
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then(() => {
+        console.log("ClinixAI offline support enabled");
+      })
+      .catch(error => {
+        console.error("Service worker error:", error);
+      });
+  });
+}
+</script>
 </body>
 </html>
