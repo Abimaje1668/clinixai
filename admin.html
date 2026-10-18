@@ -327,21 +327,27 @@ document.getElementById("createUserForm")
           document.getElementById("role").value
       };
 
-      const { data, error } =
-        await client.functions.invoke(
-          "admin-create-user",
-          {
-            body: userData
-          }
-        );
+      const { data, error } = await client.functions.invoke(
+  "admin-create-user",
+  { body: userData }
+);
 
-      if (error) {
-        throw new Error(
-          data?.error ||
-          error.message ||
-          "Unable to create user."
-        );
-      }
+if (error) {
+  let details = error.message || "Unknown error";
+
+  if (error.context) {
+    try {
+      const responseBody = await error.context.json();
+      details = responseBody.error ||
+                responseBody.message ||
+                JSON.stringify(responseBody);
+    } catch (e) {
+      console.error("Could not read error response:", e);
+    }
+  }
+
+  throw new Error(details);
+  }
 
       if (!data?.success) {
         throw new Error(
