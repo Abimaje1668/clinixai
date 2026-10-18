@@ -436,12 +436,19 @@ async function loadStaffUsers() {
   refreshUsersButton.disabled = true;
 
   try {
-    const { data, error } = await client.functions.invoke(
-      "admin-manage-users",
-      {
-        body: { action: "list" }
-      }
-    );
+    console.log("ClinixAI: Requesting staff accounts...");
+
+const { data, error } = await client.functions.invoke(
+  "admin-manage-users",
+  {
+    body: { action: "list" }
+  }
+);
+
+console.log("ClinixAI staff response:", {
+  data,
+  error
+});
 
     if (error) {
       let details = error.message || "Unable to load users";
