@@ -1,1 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>ClinixAI | Secure Login</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #075985, #0284c7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-container {
+  background: white;
+  width: 100%;
+  max-width: 420px;
+  padding: 30px 25px;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+}
+
+.logo {
+  text-align: center;
+  font-size: 48px;
+}
+
+h1 {
+  text-align: center;
+  color: #0369a1;
+  margin: 10px 0 5px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+  color: #334155;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  margin-top: 7px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  font-size: 15px;
+}
+
+input:focus {
+  outline: 2px solid #0284c7;
+}
+
+button {
+  width: 100%;
+  margin-top: 25px;
+  padding: 14px;
+  border: none;
+  border-radius: 9px;
+  background: #0284c7;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+.message {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 13px;
+  color: #dc2626;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 25px;
+  color: #64748b;
+  font-size: 12px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+<div class="logo">🩺</div>
+
+<h1>ClinixAI</h1>
+
+<p class="subtitle">
+Clinical Prescription Assistant<br>
+Version 3.0 — Secure Login
+</p>
+
+<form id="loginForm">
+
+<label for="email">Email Address</label>
+<input
+  type="email"
+  id="email"
+  placeholder="Enter your registered email"
+  autocomplete="username"
+  required
+>
+
+<label for="password">Password</label>
+<input
+  type="password"
+  id="password"
+  placeholder="Enter your password"
+  autocomplete="current-password"
+  required
+>
+
+<button type="submit" id="loginButton">
+🔐 Sign In
+</button>
+
+</form>
+
+<div class="message" id="message" role="status"></div>
+
+<div class="footer">
+Authorized Users Only<br>
+ClinixAI © 2026
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<script>
+
+// ======================================
+// SUPABASE CONFIGURATION
+// ======================================
+
+const SUPABASE_URL = "https://egqruhbudiubvkxjonub.supabase.co/rest/v1/";
+
+const SUPABASE_KEY = "sb_publishable_eZB6mHH69eHHXgnnJBP4nQ_6LBhlluo";
+
+// ======================================
+// INITIALIZE SUPABASE
+// ======================================
+
+let supabaseClient;
+
+const message = document.getElementById("message");
+const button = document.getElementById("loginButton");
+
+try {
+
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+} catch (error) {
+
+  message.textContent =
+    "Supabase configuration error. Check your URL and key.";
+
+}
+
+// ======================================
+// LOGIN FUNCTION
+// ======================================
+
+document.getElementById("loginForm")
+.addEventListener("submit", async function(event) {
+
+  event.preventDefault();
+
+  if (!supabaseClient) {
+    message.textContent = "Authentication is not configured.";
+    return;
+  }
+
+  const email = document.getElementById("email").value.trim();
+
+  const password = document.getElementById("password").value;
+
+  button.disabled = true;
+  button.textContent = "Signing in...";
+
+  message.textContent = "";
+
+  try {
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    // Check the signed-in user's profile.
+
+    const { data: profile, error: profileError } =
+      await supabaseClient
+        .from("profiles")
+        .select("username, role")
+        .eq("id", data.user.id)
+        .single();
+
+    if (profileError || !profile) {
+      await supabaseClient.auth.signOut();
+      throw new Error("No authorized ClinixAI profile found.");
+    }
+
+    message.style.color = "#15803d";
+
+    message.textContent =
+      "Welcome, " + profile.username +
+      "! Login successful.";
+
+    // Dashboard integration comes after testing.
+    // Do not redirect to the existing index.html yet.
+
+  } catch (error) {
+
+    message.style.color = "#dc2626";
+    message.textContent = error.message;
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent = "🔐 Sign In";
+
+  }
+
+});
+
+</script>
+
+</body>
+                                 </html>
