@@ -1,0 +1,214 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#075985"><title>ClinixAI | Admin Dashboard</title><style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+header {
+  background: linear-gradient(135deg, #075985, #0284c7);
+  color: white;
+  padding: 22px 18px;
+}
+
+header h1 {
+  margin: 0;
+}
+
+header p {
+  margin-bottom: 0;
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+h2 {
+  color: #0369a1;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.stat {
+  background: #eff6ff;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 24px;
+  color: #0369a1;
+}
+
+button, .button {
+  display: inline-block;
+  border: 0;
+  border-radius: 8px;
+  background: #0284c7;
+  color: white;
+  padding: 12px 16px;
+  margin: 5px 5px 5px 0;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.danger {
+  background: #dc2626;
+}
+
+.status {
+  color: #64748b;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+#error {
+  color: #dc2626;
+}
+
+[hidden] {
+  display: none !important;
+}
+</style></head><body><header>
+  <h1>🩺 ClinixAI</h1>
+  <p>Version 3.0 — Administration Portal</p>
+</header><main><section id="loading" class="card">
+  <h2>Verifying access...</h2>
+  <p class="status">Please wait while we verify your administrator account.</p>
+</section><section id="denied" class="card" hidden>
+  <h2>Access unavailable</h2>
+  <p id="error">Your account could not be authorized.</p>
+  <button id="returnLogin">Return to Login</button>
+</section><div id="dashboard" hidden>  <section class="card">
+    <h2 id="welcome">Welcome to ClinixAI</h2>
+    <p>You are signed in to the administration portal.</p>
+    <p class="status" id="accountInfo"></p>
+    <button class="danger" id="logoutButton">Sign Out</button>
+  </section>  <section class="grid">
+    <div class="stat">
+      <strong>3.0</strong>
+      <span>Application Version</span>
+    </div><div class="stat">
+  <strong>Active</strong>
+  <span>Authentication Session</span>
+</div>
+
+<div class="stat">
+  <strong>Admin</strong>
+  <span>Verified Role</span>
+</div>
+
+  </section>  <section class="card">
+    <h2>Administration</h2>
+    <p>Welcome to your ClinixAI control centre.</p>
+    <p>User management and system settings will be connected in subsequent steps.</p>
+  </section>  <section class="card">
+    <h2>Clinical Application</h2>
+    <p>Your existing Version 2.1 application is available separately.</p>
+    <a class="button" href="./index.html">Open Clinical Application</a>
+  </section></div>
+</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script>
+const SUPABASE_URL = "https://egqruhbudiubvkxjonub.supabase.co";
+const SUPABASE_KEY = "sb_publishable_eZB6mHH69eHHXgnnJBP4nQ_6LBhlluo";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const loading = document.getElementById("loading");
+const dashboard = document.getElementById("dashboard");
+const denied = document.getElementById("denied");
+
+function showDenied(message) {
+  loading.hidden = true;
+  dashboard.hidden = true;
+  denied.hidden = false;
+  document.getElementById("error").textContent = message;
+}
+
+async function initializeDashboard() {
+  try {
+    const { data, error } = await client.auth.getUser();
+
+    if (error || !data.user) {
+      window.location.replace("./login.html");
+      return;
+    }
+
+    const { data: profile, error: profileError } = await client
+      .from("profiles")
+      .select("username, role")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError || !profile) {
+      showDenied("No authorized profile was found for this account.");
+      return;
+    }
+
+    if (String(profile.role).toLowerCase() !== "admin") {
+      showDenied("Administrator privileges are required.");
+      return;
+    }
+
+    document.getElementById("welcome").textContent =
+      "Welcome, " + (profile.username || "Administrator") + "!";
+
+    document.getElementById("accountInfo").textContent =
+      "Signed in as: " + data.user.email +
+      " | Role: " + profile.role;
+
+    loading.hidden = true;
+    denied.hidden = true;
+    dashboard.hidden = false;
+
+  } catch (error) {
+    showDenied("Unable to verify access. Please try again.");
+    console.error(error);
+  }
+}
+
+document.getElementById("logoutButton").addEventListener("click", async function() {
+  const { error } = await client.auth.signOut();
+
+  if (error) {
+    alert("Sign-out failed. Please try again.");
+    return;
+  }
+
+  window.location.replace("./login.html");
+});
+
+document.getElementById("returnLogin").addEventListener("click", function() {
+  window.location.replace("./login.html");
+});
+
+initializeDashboard();
+</script></body>
+</html>
