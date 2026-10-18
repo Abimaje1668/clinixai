@@ -112,7 +112,6 @@ button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
-}
 </style></head><body><header>
   <h1>🩺 ClinixAI</h1>
   <p>Version 3.0 — Administration Portal</p>
@@ -141,6 +140,9 @@ button:disabled {
   <strong>Admin</strong>
   <span>Verified Role</span>
 </div>
+
+</section>
+
 <section class="card">
   <h2>👥 User Management</h2>
   <p>Create accounts and assign staff roles.</p>
@@ -188,7 +190,7 @@ button:disabled {
     verifies and activates them.
   </p>
 </section>
-  </section>  <section class="card">
+  <section class="card">
     <h2>Clinical Application</h2>
     <p>Your existing Version 2.1 application is available separately.</p>
     <a class="button" href="./index.html">Open Clinical Application</a>
@@ -224,7 +226,7 @@ async function initializeDashboard() {
 
     const { data: profile, error: profileError } = await client
       .from("profiles")
-      .select("username, role")
+      .select("username, role, account_status")
       .eq("id", data.user.id)
       .single();
 
@@ -241,7 +243,6 @@ async function initializeDashboard() {
     "An active administrator account is required."
   );
   return;
-    }
     }
 
     document.getElementById("welcome").textContent =
