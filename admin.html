@@ -91,8 +91,27 @@ button, .button {
   color: #dc2626;
 }
 
-[hidden] {
-  display: none !important;
+input, select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input:focus, select:focus {
+  outline: 2px solid #0284c7;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 }
 </style></head><body><header>
   <h1>🩺 ClinixAI</h1>
@@ -122,11 +141,53 @@ button, .button {
   <strong>Admin</strong>
   <span>Verified Role</span>
 </div>
+<section class="card">
+  <h2>👥 User Management</h2>
+  <p>Create accounts and assign staff roles.</p>
 
-  </section>  <section class="card">
-    <h2>Administration</h2>
-    <p>Welcome to your ClinixAI control centre.</p>
-    <p>User management and system settings will be connected in subsequent steps.</p>
+  <form id="createUserForm">
+
+    <label for="fullName">Full Name</label><br>
+    <input id="fullName" type="text" required><br><br>
+
+    <label for="username">Username</label><br>
+    <input id="username" type="text" required><br><br>
+
+    <label for="email">Email Address</label><br>
+    <input id="email" type="email" required><br><br>
+
+    <label for="facility">Health Facility</label><br>
+    <input id="facility" type="text"><br><br>
+
+    <label for="registrationNumber">
+      Professional Registration Number
+    </label><br>
+    <input id="registrationNumber" type="text"><br><br>
+
+    <label for="role">Assign Role</label><br>
+    <select id="role" required>
+      <option value="">Select Role</option>
+      <option value="admin">Administrator</option>
+      <option value="physician">Physician</option>
+      <option value="nurse">Nurse</option>
+      <option value="laboratory">Laboratory</option>
+      <option value="hims">HIMS</option>
+    </select><br><br>
+
+    <button type="submit" id="createUserButton">
+      Create User &amp; Send Invitation
+    </button>
+
+  </form>
+
+  <p id="createUserMessage" class="status"
+     role="status" aria-live="polite"></p>
+
+  <p class="status">
+    New accounts remain pending until an administrator
+    verifies and activates them.
+  </p>
+</section>
   </section>  <section class="card">
     <h2>Clinical Application</h2>
     <p>Your existing Version 2.1 application is available separately.</p>
@@ -172,9 +233,15 @@ async function initializeDashboard() {
       return;
     }
 
-    if (String(profile.role).toLowerCase() !== "admin") {
-      showDenied("Administrator privileges are required.");
-      return;
+    if (
+ String(profile.role).toLowerCase() !== "admin" ||
+  profile.account_status !== "active"
+) {
+  showDenied(
+    "An active administrator account is required."
+  );
+  return;
+    }
     }
 
     document.getElementById("welcome").textContent =
@@ -208,7 +275,84 @@ document.getElementById("logoutButton").addEventListener("click", async function
 document.getElementById("returnLogin").addEventListener("click", function() {
   window.location.replace("./login.html");
 });
+document.getElementById("createUserForm")
+  .addEventListener("submit", async function(event) {
 
+    event.preventDefault();
+
+    const button =
+      document.getElementById("createUserButton");
+
+    const message =
+      document.getElementById("createUserMessage");
+
+    button.disabled = true;
+    button.textContent = "Creating user...";
+    message.textContent = "";
+
+    try {
+      const userData = {
+        full_name:
+          document.getElementById("fullName").value.trim(),
+
+        username:
+          document.getElementById("username").value.trim(),
+
+        email:
+          document.getElementById("email").value.trim(),
+
+        facility_name:
+          document.getElementById("facility").value.trim(),
+
+        professional_registration_number:
+          document.getElementById("registrationNumber")
+            .value.trim(),
+
+        role:
+          document.getElementById("role").value
+      };
+
+      const { data, error } =
+        await client.functions.invoke(
+          "admin-create-user",
+          {
+            body: userData
+          }
+        );
+
+      if (error) {
+        throw new Error(
+          data?.error ||
+          error.message ||
+          "Unable to create user."
+        );
+      }
+
+      if (!data?.success) {
+        throw new Error(
+          data?.error ||
+          "User creation was not confirmed."
+        );
+      }
+
+      message.style.color = "#15803d";
+      message.textContent =
+        "Invitation sent successfully. " +
+        "The account is pending activation.";
+
+      document.getElementById("createUserForm").reset();
+
+    } catch (error) {
+      message.style.color = "#dc2626";
+      message.textContent = error.message;
+      console.error(error);
+
+    } finally {
+      button.disabled = false;
+      button.textContent =
+        "Create User & Send Invitation";
+    }
+  });
 initializeDashboard();
 </script></body>
 </html>
