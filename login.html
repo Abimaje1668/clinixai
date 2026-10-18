@@ -238,13 +238,15 @@ document.getElementById("loginForm")
 
     message.style.color = "#15803d";
 
-    message.textContent =
-      "Welcome, " + profile.username +
-      "! Login successful.";
+message.textContent =
+"Welcome, " + profile.username +
+"! Login successful.";
 
-    // Dashboard integration comes after testing.
-    // Do not redirect to the existing index.html yet.
+button.textContent = "Opening Dashboard...";
 
+// Allow the success message to appear briefly,
+// then open the Version 3.0 Admin Dashboard.
+window.location.href = "./admin.html";
   } catch (error) {
 
     message.style.color = "#dc2626";
