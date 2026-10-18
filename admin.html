@@ -224,44 +224,56 @@ async function initializeDashboard() {
       return;
     }
 
-    const { data: profile, error: profileError } = await client
-      .from("profiles")
-      .select("username, role, account_status")
-      .eq("id", data.user.id)
-      .single();
+    const { data: profile, error: profileError } =
+      await client
+        .from("profiles")
+        .select("username, role, account_status")
+        .eq("id", data.user.id)
+        .single();
 
-    if (profileError || !profile) {
-      showDenied("No authorized profile was found for this account.");
+    if (profileError) {
+      console.error("Profile error:", profileError);
+      showDenied("Unable to load your administrator profile.");
+      return;
+    }
+
+    if (!profile) {
+      showDenied("No profile was found for your account.");
       return;
     }
 
     if (
- String(profile.role).toLowerCase() !== "admin" ||
-  profile.account_status !== "active"
-) {
-  showDenied(
-    "An active administrator account is required."
-  );
-  return;
+      String(profile.role).toLowerCase() !== "admin" ||
+      profile.account_status !== "active"
+    ) {
+      showDenied(
+        "An active administrator account is required."
+      );
+      return;
     }
 
     document.getElementById("welcome").textContent =
-      "Welcome, " + (profile.username || "Administrator") + "!";
+      "Welcome, " +
+      (profile.username || "Administrator") + "!";
 
     document.getElementById("accountInfo").textContent =
-      "Signed in as: " + data.user.email +
-      " | Role: " + profile.role;
+      "Signed in as: " +
+      data.user.email +
+      " | Role: " +
+      profile.role;
 
     loading.hidden = true;
     denied.hidden = true;
     dashboard.hidden = false;
 
   } catch (error) {
-    showDenied("Unable to verify access. Please try again.");
-    console.error(error);
+    console.error("Dashboard error:", error);
+
+    showDenied(
+      "Unable to verify access. Please try again."
+    );
   }
 }
-
 document.getElementById("logoutButton").addEventListener("click", async function() {
   const { error } = await client.auth.signOut();
 
