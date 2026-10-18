@@ -307,6 +307,7 @@ async function initializeDashboard() {
     loading.hidden = true;
     denied.hidden = true;
     dashboard.hidden = false;
+    await loadStaffUsers();
 
   } catch (error) {
     console.error("Dashboard error:", error);
@@ -414,6 +415,187 @@ if (error) {
         "Create User & Send Invitation";
     }
   });
+  // ======================================
+// STAFF ACCOUNT MANAGEMENT
+// ======================================
+
+const usersTableBody =
+  document.getElementById("usersTableBody");
+
+const usersMessage =
+  document.getElementById("usersMessage");
+
+const refreshUsersButton =
+  document.getElementById("refreshUsersButton");
+
+async function loadStaffUsers() {
+  usersMessage.textContent = "Loading staff accounts...";
+  usersTableBody.replaceChildren();
+
+  refreshUsersButton.disabled = true;
+
+  try {
+    const { data, error } = await client.functions.invoke(
+      "admin-manage-users",
+      {
+        body: { action: "list" }
+      }
+    );
+
+    if (error) {
+      let details = error.message || "Unable to load users";
+
+      if (error.context) {
+        try {
+          const responseBody = await error.context.json();
+          details =
+            responseBody.error ||
+            responseBody.message ||
+            details;
+        } catch (_) {}
+      }
+
+      throw new Error(details);
+    }
+
+    if (!data?.success) {
+      throw new Error(data?.error || "Unable to load users");
+    }
+
+    const users = data.users || [];
+
+    if (users.length === 0) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 4;
+      cell.textContent = "No staff accounts found.";
+      row.appendChild(cell);
+      usersTableBody.appendChild(row);
+    }
+
+    users.forEach((user) => {
+      const row = document.createElement("tr");
+
+      const nameCell = document.createElement("td");
+      nameCell.textContent =
+        user.full_name || user.username || "Unnamed";
+
+      const roleCell = document.createElement("td");
+      roleCell.textContent = user.role || "Unknown";
+
+      const statusCell = document.createElement("td");
+      statusCell.textContent =
+        user.account_status || "Unknown";
+
+      const actionCell = document.createElement("td");
+
+      if (user.role !== "admin") {
+        const actionButton = document.createElement("button");
+
+        const activate = user.account_status !== "active";
+
+        actionButton.textContent =
+          activate ? "Activate" : "Suspend";
+
+        actionButton.className =
+          activate ? "" : "danger";
+
+        actionButton.addEventListener("click", async () => {
+          const newStatus =
+            activate ? "active" : "suspended";
+
+          const confirmed = window.confirm(
+            "Are you sure you want to " +
+            newStatus +
+            " this account?"
+          );
+
+          if (!confirmed) return;
+
+          actionButton.disabled = true;
+
+          try {
+            const { data: result, error: updateError } =
+              await client.functions.invoke(
+                "admin-manage-users",
+                {
+                  body: {
+                    action: "update_status",
+                    user_id: user.id,
+                    status: newStatus
+                  }
+                }
+              );
+
+            if (updateError) {
+              let details =
+                updateError.message || "Update failed";
+
+              if (updateError.context) {
+                try {
+                  const responseBody =
+                    await updateError.context.json();
+
+                  details =
+                    responseBody.error ||
+                    responseBody.message ||
+                    details;
+                } catch (_) {}
+              }
+
+              throw new Error(details);
+            }
+
+            if (!result?.success) {
+              throw new Error(
+                result?.error || "Account update failed"
+              );
+            }
+
+            usersMessage.style.color = "#15803d";
+            usersMessage.textContent = result.message;
+
+            await loadStaffUsers();
+
+          } catch (error) {
+            usersMessage.style.color = "#dc2626";
+            usersMessage.textContent = error.message;
+            actionButton.disabled = false;
+          }
+        });
+
+        actionCell.appendChild(actionButton);
+      } else {
+        actionCell.textContent = "Protected";
+      }
+
+      row.appendChild(nameCell);
+      row.appendChild(roleCell);
+      row.appendChild(statusCell);
+      row.appendChild(actionCell);
+
+      usersTableBody.appendChild(row);
+    });
+
+    usersMessage.style.color = "#15803d";
+    usersMessage.textContent =
+      users.length + " account(s) loaded.";
+
+  } catch (error) {
+    console.error("Staff loading error:", error);
+
+    usersMessage.style.color = "#dc2626";
+    usersMessage.textContent = error.message;
+
+  } finally {
+    refreshUsersButton.disabled = false;
+  }
+}
+
+refreshUsersButton.addEventListener(
+  "click",
+  loadStaffUsers
+);
 initializeDashboard();
 </script></body>
 </html>
