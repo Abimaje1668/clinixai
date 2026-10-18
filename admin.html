@@ -193,6 +193,46 @@ button:disabled {
   </p>
 </section>
   <section class="card">
+  <h2>👨‍⚕️ Registered Staff Accounts</h2>
+
+  <p>
+    Review staff accounts and approve or suspend access.
+  </p>
+
+  <button
+    type="button"
+    id="refreshUsersButton"
+  >
+    🔄 Refresh Staff List
+  </button>
+
+  <p id="usersMessage" role="status"></p>
+
+  <div style="overflow-x:auto;">
+    <table
+      id="usersTable"
+      style="width:100%;border-collapse:collapse;"
+    >
+      <thead>
+        <tr>
+          <th>Staff Name</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="usersTableBody">
+        <tr>
+          <td colspan="4">
+            Loading staff accounts...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+  <section class="card">
     <h2>Clinical Application</h2>
     <p>Your existing Version 2.1 application is available separately.</p>
     <a class="button" href="./index.html">Open Clinical Application</a>
