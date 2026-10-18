@@ -438,12 +438,30 @@ async function loadStaffUsers() {
   try {
     console.log("ClinixAI: Requesting staff accounts...");
 
-const { data, error } = await client.functions.invoke(
-  "admin-manage-users",
-  {
-    body: { action: "list" }
+const controller = new AbortController();
+
+const timeout = setTimeout(() => {
+  controller.abort();
+}, 15000);
+
+let data;
+let error;
+
+try {
+  const result = await client.functions.invoke(
+    "admin-manage-users",
+    {
+      body: { action: "list" },
+      signal: controller.signal
+    }
+  );
+
+  data = result.data;
+  error = result.error;
+
+} finally {
+  clearTimeout(timeout);
   }
-);
 
 console.log("ClinixAI staff response:", {
   data,
