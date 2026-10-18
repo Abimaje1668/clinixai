@@ -227,7 +227,7 @@ document.getElementById("loginForm")
     const { data: profile, error: profileError } =
       await supabaseClient
         .from("profiles")
-        .select("username, role")
+        .select("username, role, account_status")
         .eq("id", data.user.id)
         .single();
 
