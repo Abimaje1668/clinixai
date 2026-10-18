@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClinixAI - Clinical Prescription Assistant</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  margin: 0;
+  color: #1e293b;
+}
+
+header {
+  background: linear-gradient(135deg, #075985, #0891b2);
+  color: white;
+  padding: 25px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+header p {
+  margin-bottom: 0;
+}
+
+.container {
+  max-width: 950px;
+  margin: 20px auto;
+  padding: 15px;
+}
+
+.card {
+  background: white;
+  padding: 22px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+}
+
+h2 {
+  color: #0369a1;
+  font-size: 20px;
+}
+
+label {
+  display: block;
+  margin-top: 14px;
+  font-weight: bold;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 11px;
+  margin-top: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: 15px;
+}
+
+textarea {
+  min-height: 75px;
+}
+
+button {
+  background: #0284c7;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 7px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 15px;
+}
+
+button:hover {
+  background: #0369a1;
+}
+
+.warning {
+  background: #fff7ed;
+  color: #9a3412;
+  padding: 15px;
+  border-left: 4px solid #f97316;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.success {
+  background: #dcfce7;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+
+.prescription {
+  border: 2px solid #0284c7;
+  padding: 25px;
+  margin-top: 20px;
+  background: white;
+  border-radius: 8px;
+}
+
+.prescription h2 {
+  text-align: center;
+}
+
+.prescription p {
+  line-height: 1.7;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #64748b;
+}
+
+@media print {
+  header, .card, footer, .warning, .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  .container {
+    margin: 0;
+    padding: 0;
+  }
+
+  .prescription {
+    border: none;
+    margin: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🩺 ClinixAI</h1>
+  <p>Smart Clinical Prescription Assistant</p>
+</header>
+
+<div class="container">
+
+<div class="warning">
+  <strong>Clinical Safety Notice:</strong>
+  This application is a prototype for authorized
+  healthcare professionals. Medication selection,
+  dosing, and prescription approval must be
+  independently verified by a qualified prescriber.
+</div>
+
+<div class="card">
+
+<h2>👤 Patient Information</h2>
+
+<label>Patient Name</label>
+<input id="patientName" placeholder="Enter patient name">
+
+<label>Age (Years)</label>
+<input type="number" id="age" min="0" max="120">
+
+<label>Sex</label>
+<select id="sex">
+<option value="">Select</option>
+<option>Male</option>
+<option>Female</option>
+<option>Other / Not recorded</option>
+</select>
+
+<label>Weight (kg)</label>
+<input type="number" id="weight" min="0" step="0.1">
+
+<label>Known Drug Allergies</label>
+<textarea id="allergies"
+placeholder="Enter allergies or state None known"></textarea>
+
+</div>
+
+<div class="card">
+
+<h2>🩺 Clinical Assessment</h2>
+
+<label>Presenting Complaints</label>
+<textarea id="complaints"
+placeholder="Enter patient symptoms"></textarea>
+
+<label>Clinical Diagnosis</label>
+<input id="diagnosis"
+placeholder="Enter clinician-confirmed diagnosis">
+
+<label>Temperature (°C)</label>
+<input type="number" id="temperature" step="0.1">
+
+<label>Blood Pressure</label>
+<input id="bp" placeholder="Example: 120/80">
+
+<label>Additional Clinical Notes</label>
+<textarea id="notes"></textarea>
+
+</div>
+
+<div class="card">
+
+<h2>💊 Prescription Details</h2>
+
+<label>Medication Name</label>
+<input id="drug" placeholder="Generic medication name">
+
+<label>Medication Strength</label>
+<input id="strength" placeholder="Enter verified strength">
+
+<label>Prescribed Dose</label>
+<input id="dose" placeholder="Enter clinician-verified dose">
+
+<label>Route of Administration</label>
+<select id="route">
+<option value="">Select route</option>
+<option>Oral</option>
+<option>Intravenous</option>
+<option>Intramuscular</option>
+<option>Subcutaneous</option>
+<option>Topical</option>
+<option>Inhalation</option>
+<option>Other</option>
+</select>
+
+<label>Frequency</label>
+<input id="frequency"
+placeholder="Enter prescribed frequency">
+
+<label>Duration</label>
+<input id="duration"
+placeholder="Enter treatment duration">
+
+<label>Additional Instructions</label>
+<textarea id="instructions"></textarea>
+
+</div>
+
+<div class="card">
+
+<h2>👨‍⚕️ Prescriber Information</h2>
+
+<label>Prescriber's Full Name</label>
+<input id="prescriber">
+
+
+<label>Healthcare Facility</label>
+<input id="facility">
+
+<button onclick="generatePrescription()">
+Generate Prescription
+</button>
+
+</div>
+
+<div id="result" class="prescription"
+style="display:none">
+
+<h2>CLINICAL PRESCRIPTION</h2>
+
+<div id="prescriptionContent"></div>
+
+<p>
+<strong>Prescriber Signature:</strong>
+________________________
+</p>
+
+<p>
+<strong>Date:</strong>
+<span id="prescriptionDate"></span>
+</p>
+
+<p>
+<strong>Status:</strong>
+DRAFT — Requires authorized prescriber verification.
+</p>
+
+<button class="no-print" onclick="window.print()">
+🖨 Print Prescription
+</button>
+
+</div>
+
+</div>
+
+<footer>
+ClinixAI © 2026 | Clinical Prescription Support
+</footer>
+
+<script>
+
+function getValue(id) {
+  return document.getElementById(id).value.trim();
+}
+
+function escapeHTML(value) {
+  return value.replace(/[&<>"']/g, function(char) {
+    return {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char];
+  });
+}
+
+function generatePrescription() {
+
+  const required = [
+    "patientName",
+    "age",
+    "sex",
+    "allergies",
+    "diagnosis",
+    "drug",
+    "strength",
+    "dose",
+    "route",
+    "frequency",
+    "duration",
+    "prescriber",
+    "registration",
+    "facility"
+  ];
+
+  for (const field of required) {
+    if (!getValue(field)) {
+      alert(
+        "Please complete: " +
+        document.querySelector(
+          `label[for="${field}"]`
+        )?.textContent || "Required field"
+      );
+      document.getElementById(field).focus();
+      return;
+    }
+  }
+
+  const age = Number(getValue("age"));
+
+  if (age < 0 || age > 120) {
+    alert("Please enter a valid patient age.");
+    return;
+  }
+
+  const weightText = getValue("weight");
+
+  if (weightText && Number(weightText) <= 0) {
+    alert("Please enter a valid patient weight.");
+    return;
+  }
+
+  const fields = [
+    ["Patient Name", "patientName"],
+    ["Age", "age"],
+    ["Sex", "sex"],
+    ["Weight (kg)", "weight"],
+    ["Known Allergies", "allergies"],
+    ["Diagnosis", "diagnosis"],
+    ["Medication", "drug"],
+    ["Strength", "strength"],
+    ["Dose", "dose"],
+    ["Route", "route"],
+    ["Frequency", "frequency"],
+    ["Duration", "duration"],
+    ["Instructions", "instructions"],
+    ["Prescriber", "prescriber"],
+    ["Registration Number", "registration"],
+    ["Facility", "facility"]
+  ];
+
+  let output = "";
+
+  fields.forEach(function(field) {
+    const value = getValue(field[1]);
+
+    if (value) {
+      output +=
+        "<p><strong>" +
+        escapeHTML(field[0]) +
+        ":</strong> " +
+        escapeHTML(value) +
+        "</p>";
+    }
+  });
+
+  document.getElementById(
+    "prescriptionContent"
+  ).innerHTML = output;
+
+  document.getElementById(
+    "prescriptionDate"
+  ).textContent = new Date().toLocaleDateString("en-NG");
+
+  document.getElementById(
+    "result"
+  ).style.display = "block";
+
+  document.getElementById(
+    "result"
+  ).scrollIntoView({behavior:"smooth"});
+
+}
+
+</script>
+
+</body>
+</html>
