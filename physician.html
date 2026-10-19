@@ -1,1 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>ClinixAI | Physician Dashboard</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+header {
+  background: linear-gradient(135deg, #075985, #0284c7);
+  color: white;
+  padding: 24px 18px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+header p {
+  margin-bottom: 0;
+  font-size: 14px;
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 18px;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+h2 {
+  color: #0369a1;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.stat {
+  background: #eff6ff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  font-size: 26px;
+  color: #0369a1;
+}
+
+.stat span {
+  font-size: 13px;
+}
+
+button {
+  border: none;
+  border-radius: 9px;
+  background: #0284c7;
+  color: white;
+  padding: 13px 16px;
+  margin: 8px 5px 5px 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.danger {
+  background: #dc2626;
+}
+
+.status {
+  color: #64748b;
+  font-size: 14px;
+}
+
+[hidden] {
+  display: none !important;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🩺 ClinixAI</h1>
+  <p>Version 3.0 — Physician Portal</p>
+</header>
+
+<main>
+
+<section id="loading" class="card">
+  <h2>Verifying Physician Access...</h2>
+  <p>Please wait while we verify your account.</p>
+</section>
+
+<section id="denied" class="card" hidden>
+  <h2>Access Denied</h2>
+  <p id="error"></p>
+  <button onclick="location.href='./login.html'">
+    Return to Login
+  </button>
+</section>
+
+<div id="dashboard" hidden>
+
+<section class="card">
+
+<h2 id="welcome">
+Welcome, Doctor
+</h2>
+
+<p id="accountInfo" class="status"></p>
+
+<button class="danger" id="logoutButton">
+Sign Out
+</button>
+
+</section>
+
+<section class="grid">
+
+<div class="stat">
+<strong>0</strong>
+<span>Registered Patients</span>
+</div>
+
+<div class="stat">
+<strong>0</strong>
+<span>Today's Consultations</span>
+</div>
+
+<div class="stat">
+<strong>0</strong>
+<span>Prescriptions</span>
+</div>
+
+<div class="stat">
+<strong>0</strong>
+<span>Laboratory Requests</span>
+</div>
+
+</section>
+
+<section class="card">
+
+<h2>👨‍⚕️ Clinical Workspace</h2>
+
+<p>
+Select a clinical activity to continue.
+</p>
+
+<button onclick="featureNotice('Patient Registration')">
+👤 Register Patient
+</button>
+
+<button onclick="featureNotice('Clinical Assessment')">
+🩺 Clinical Assessment
+</button>
+
+<button onclick="featureNotice('Prescription Management')">
+💊 Prescriptions
+</button>
+
+<button onclick="featureNotice('Laboratory Requests')">
+🔬 Laboratory Requests
+</button>
+
+</section>
+
+<section class="card">
+
+<h2>📋 Clinical Safety Notice</h2>
+
+<p>
+ClinixAI is currently under development.
+Use fictional patient information only.
+Clinical decisions and prescriptions must
+be independently verified by qualified
+healthcare professionals.
+</p>
+
+</section>
+
+</div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://egqruhbudiubvkxjonub.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_eZB6mHH69eHHXgnnJBP4nQ_6LBhlluo";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const loading = document.getElementById("loading");
+const denied = document.getElementById("denied");
+const dashboard = document.getElementById("dashboard");
+
+function showDenied(message) {
+  loading.hidden = true;
+  dashboard.hidden = true;
+  denied.hidden = false;
+  document.getElementById("error").textContent = message;
+}
+
+async function initializePhysicianDashboard() {
+
+  try {
+
+    const { data, error } =
+      await client.auth.getUser();
+
+    if (error || !data.user) {
+      window.location.replace("./login.html");
+      return;
+    }
+
+    const { data: profile, error: profileError } =
+      await client
+        .from("profiles")
+        .select("username, role, account_status")
+        .eq("id", data.user.id)
+        .single();
+
+    if (profileError || !profile) {
+      showDenied("Unable to verify physician profile.");
+      return;
+    }
+
+    const role = String(
+      profile.role || ""
+    ).toLowerCase();
+
+    const status = String(
+      profile.account_status || ""
+    ).toLowerCase();
+
+    if (role !== "physician" || status !== "active") {
+      showDenied(
+        "Only approved physicians can access this dashboard."
+      );
+      return;
+    }
+
+    document.getElementById("welcome").textContent =
+      "Welcome, Dr. " +
+      (profile.username || "Physician") + "!";
+
+    document.getElementById("accountInfo").textContent =
+      "Signed in as: " + data.user.email;
+
+    loading.hidden = true;
+    denied.hidden = true;
+    dashboard.hidden = false;
+
+  } catch (error) {
+
+    console.error(error);
+
+    showDenied(
+      "Unable to verify access. Please try again."
+    );
+
+  }
+}
+
+document.getElementById("logoutButton")
+.addEventListener("click", async function() {
+
+  const { error } = await client.auth.signOut();
+
+  if (error) {
+    alert("Sign-out failed. Please try again.");
+    return;
+  }
+
+  window.location.replace("./login.html");
+
+});
+
+function featureNotice(feature) {
+  alert(
+    feature +
+    " will be available in the next development phase."
+  );
+}
+
+initializePhysicianDashboard();
+
+</script>
+
+</body>
+  </html>
