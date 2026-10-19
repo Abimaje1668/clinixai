@@ -2,7 +2,7 @@
   "name": "ClinixAI - Clinical Prescription Assistant",
   "short_name": "ClinixAI",
   "description": "Clinical Prescription Support Application",
-  "start_url": "./",
+  "start_url": "./login.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
