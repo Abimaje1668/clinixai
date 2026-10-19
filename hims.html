@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#075985">
+
+<title>ClinixAI | HIMS Dashboard</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+header {
+  background: linear-gradient(135deg, #075985, #0284c7);
+  color: white;
+  text-align: center;
+  padding: 25px 15px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+header p {
+  margin-bottom: 0;
+  font-size: 14px;
+}
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 18px;
+}
+
+.card {
+  background: white;
+  padding: 22px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+h2 {
+  color: #0369a1;
+  font-size: 21px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat {
+  background: #eff6ff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  font-size: 27px;
+  color: #0369a1;
+}
+
+.stat span {
+  font-size: 13px;
+  color: #475569;
+}
+
+button {
+  border: none;
+  background: #0284c7;
+  color: white;
+  padding: 13px 17px;
+  margin: 7px 5px 5px 0;
+  border-radius: 9px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0369a1;
+}
+
+.danger {
+  background: #dc2626;
+}
+
+.status {
+  color: #64748b;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.notice {
+  background: #fff7ed;
+  border-left: 4px solid #f97316;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+[hidden] {
+  display: none !important;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📁 ClinixAI</h1>
+  <p>Version 3.0 — Health Information Management Portal</p>
+</header>
+
+<main>
+
+<section id="loading" class="card">
+  <h2>Verifying HIMS Access...</h2>
+  <p class="status">
+    Please wait while we verify your account.
+  </p>
+</section>
+
+<section id="denied" class="card" hidden>
+  <h2>Access Denied</h2>
+  <p id="error"></p>
+
+  <button onclick="location.href='./login.html'">
+    Return to Login
+  </button>
+</section>
+
+<div id="dashboard" hidden>
+
+<section class="card">
+  <h2 id="welcome">Welcome, HIMS Officer</h2>
+
+  <p id="accountInfo" class="status"></p>
+
+  <button class="danger" id="logoutButton">
+    🚪 Sign Out
+  </button>
+</section>
+
+<section class="grid">
+
+  <div class="stat">
+    <strong>0</strong>
+    <span>Registered Patients</span>
+  </div>
+
+  <div class="stat">
+    <strong>0</strong>
+    <span>Today's Registrations</span>
+  </div>
+
+  <div class="stat">
+    <strong>0</strong>
+    <span>Patient Visits</span>
+  </div>
+
+  <div class="stat">
+    <strong>0</strong>
+    <span>Medical Records</span>
+  </div>
+
+</section>
+
+<section class="card">
+
+<h2>📁 Health Information Management Workspace</h2>
+
+<p>
+Manage patient registration and medical records.
+Select an activity below.
+</p>
+
+<button onclick="featureNotice('Patient Registration')">
+  👤 Register Patient
+</button>
+
+<button onclick="featureNotice('Patient Search')">
+  🔎 Search Patients
+</button>
+
+<button onclick="featureNotice('Patient Records')">
+  📋 Patient Records
+</button>
+
+<button onclick="featureNotice('Patient Visits')">
+  🏥 Patient Visits
+</button>
+
+<button onclick="featureNotice('Medical Records Reports')">
+  📊 Medical Records Reports
+</button>
+
+</section>
+
+<section class="card">
+
+<h2>📊 HIMS Activities</h2>
+
+<p>
+Patient registrations, patient visits,
+record updates and other authorized
+health information activities will appear here.
+</p>
+
+<p class="status">
+  Patient record management is under development.
+</p>
+
+</section>
+
+<section class="notice">
+
+<strong>⚠️ Data Protection Notice</strong>
+
+<p>
+ClinixAI is currently a demonstration application.
+Use fictional patient information only.
+</p>
+
+<p>
+Patient records must be protected against
+unauthorized access, disclosure and modification.
+</p>
+
+</section>
+
+</div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<script>
+
+// ======================================
+// CLINIXAI VERSION 3.0
+// HIMS DASHBOARD
+// ======================================
+
+const SUPABASE_URL =
+  "https://egqruhbudiubvkxjonub.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_eZB6mHH69eHHXgnnJBP4nQ_6LBhlluo";
+
+const loading =
+  document.getElementById("loading");
+
+const denied =
+  document.getElementById("denied");
+
+const dashboard =
+  document.getElementById("dashboard");
+
+function showDenied(message) {
+  loading.hidden = true;
+  dashboard.hidden = true;
+  denied.hidden = false;
+
+  document.getElementById("error").textContent =
+    message;
+}
+
+let client;
+
+try {
+  if (!window.supabase) {
+    throw new Error("Supabase library unavailable.");
+  }
+
+  client = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+} catch (error) {
+  showDenied(
+    "Unable to initialize authentication. Check your connection."
+  );
+}
+
+// ======================================
+// VERIFY HIMS ACCOUNT
+// ======================================
+
+async function initializeHIMSDashboard() {
+
+  if (!client) return;
+
+  try {
+
+    const { data, error } =
+      await client.auth.getUser();
+
+    if (error || !data.user) {
+      window.location.replace("./login.html");
+      return;
+    }
+
+    const { data: profile, error: profileError } =
+      await client
+        .from("profiles")
+        .select("username, role, account_status")
+        .eq("id", data.user.id)
+        .single();
+
+    if (profileError || !profile) {
+      showDenied(
+        "Unable to verify your HIMS profile."
+      );
+      return;
+    }
+
+    const role = String(
+      profile.role || ""
+    ).trim().toLowerCase();
+
+    const status = String(
+      profile.account_status || ""
+    ).trim().toLowerCase();
+
+    if (role !== "hims" || status !== "active") {
+      showDenied(
+        "Only approved HIMS officers can access this dashboard."
+      );
+      return;
+    }
+
+    document.getElementById("welcome").textContent =
+      "Welcome, " +
+      (profile.username || "HIMS Officer") + "!";
+
+    document.getElementById("accountInfo").textContent =
+      "Signed in as: " + data.user.email;
+
+    loading.hidden = true;
+    denied.hidden = true;
+    dashboard.hidden = false;
+
+  } catch (error) {
+
+    console.error("HIMS dashboard error:", error);
+
+    showDenied(
+      "Unable to verify access. Please try again."
+    );
+
+  }
+}
+
+// ======================================
+// SIGN OUT
+// ======================================
+
+document.getElementById("logoutButton")
+  .addEventListener("click", async function() {
+
+    if (!client) return;
+
+    const { error } =
+      await client.auth.signOut();
+
+    if (error) {
+      alert("Sign-out failed. Please try again.");
+      return;
+    }
+
+    window.location.replace("./login.html");
+
+  });
+
+// ======================================
+// FUTURE HIMS FEATURES
+// ======================================
+
+function featureNotice(feature) {
+
+  alert(
+    feature +
+    " will be available in the next development phase."
+  );
+
+}
+
+initializeHIMSDashboard();
+
+</script>
+
+</body>
+  </html>
