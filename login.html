@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<meta name="theme-color" content="#075985">
 
 <title>ClinixAI | Secure Login</title>
 
 <style>
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  min-height: 100vh;
   font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #075985, #0284c7);
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,81 +32,104 @@ body {
 .login-container {
   background: white;
   width: 100%;
-  max-width: 420px;
+  max-width: 430px;
   padding: 30px 25px;
   border-radius: 18px;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.15);
 }
 
 .logo {
   text-align: center;
-  font-size: 48px;
+  margin-bottom: 25px;
 }
 
-h1 {
-  text-align: center;
-  color: #0369a1;
-  margin: 10px 0 5px;
+.logo h1 {
+  color: #075985;
+  margin-bottom: 5px;
+  font-size: 32px;
 }
 
-.subtitle {
-  text-align: center;
+.logo p {
   color: #64748b;
   font-size: 14px;
-  margin-bottom: 25px;
+}
+
+.version {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+h2 {
+  color: #1e293b;
+  font-size: 22px;
+  margin-bottom: 20px;
 }
 
 label {
   display: block;
-  margin-top: 15px;
+  margin-bottom: 7px;
+  font-size: 14px;
   font-weight: bold;
   color: #334155;
-  font-size: 14px;
 }
 
 input {
   width: 100%;
-  padding: 13px;
-  margin-top: 7px;
+  padding: 14px;
+  margin-bottom: 18px;
   border: 1px solid #cbd5e1;
   border-radius: 9px;
   font-size: 15px;
 }
 
 input:focus {
-  outline: 2px solid #0284c7;
+  outline: none;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px #e0f2fe;
 }
 
 button {
   width: 100%;
-  margin-top: 25px;
-  padding: 14px;
-  border: none;
-  border-radius: 9px;
+  padding: 15px;
   background: #0284c7;
   color: white;
+  border: none;
+  border-radius: 9px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
 }
 
+button:hover {
+  background: #0369a1;
+}
+
 button:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .message {
   margin-top: 18px;
+  font-size: 14px;
   text-align: center;
-  font-size: 13px;
-  color: #dc2626;
+  min-height: 20px;
+  line-height: 1.5;
 }
 
 .footer {
-  text-align: center;
   margin-top: 25px;
+  text-align: center;
   color: #64748b;
   font-size: 12px;
+  line-height: 1.6;
 }
+
 </style>
 
 </head>
@@ -108,46 +138,75 @@ button:disabled {
 
 <div class="login-container">
 
-<div class="logo">🩺</div>
+<div class="logo">
 
-<h1>ClinixAI</h1>
+<h1>🩺 ClinixAI</h1>
 
-<p class="subtitle">
-Clinical Prescription Assistant<br>
-Version 3.0 — Secure Login
+<p>
+Intelligent Clinical Management System
 </p>
+
+<span class="version">
+Version 3.0 | Professional Healthcare Portal
+</span>
+
+</div>
+
+<h2>🔐 Secure Staff Login</h2>
 
 <form id="loginForm">
 
-<label for="email">Email Address</label>
+<label for="email">
+Email Address
+</label>
+
 <input
-  type="email"
-  id="email"
-  placeholder="Enter your registered email"
-  autocomplete="username"
-  required
+type="email"
+id="email"
+placeholder="Enter your registered email"
+autocomplete="username"
+required
 >
 
-<label for="password">Password</label>
+<label for="password">
+Password
+</label>
+
 <input
-  type="password"
-  id="password"
-  placeholder="Enter your password"
-  autocomplete="current-password"
-  required
+type="password"
+id="password"
+placeholder="Enter your password"
+autocomplete="current-password"
+required
 >
 
 <button type="submit" id="loginButton">
-🔐 Sign In
+Sign In
 </button>
 
 </form>
 
-<div class="message" id="message" role="status"></div>
+<div id="message"
+class="message"
+role="status"
+aria-live="polite"></div>
 
 <div class="footer">
-Authorized Users Only<br>
-ClinixAI © 2026
+
+<p>
+Authorized Healthcare Professionals Only
+</p>
+
+<p>
+Administrator • Physician • Nurse
+<br>
+Laboratory • HIMS
+</p>
+
+<p>
+© 2026 ClinixAI
+</p>
+
 </div>
 
 </div>
@@ -156,24 +215,79 @@ ClinixAI © 2026
 
 <script>
 
-// ======================================
+// ===========================================
+// CLINIXAI VERSION 3.0
+// CENTRALIZED AUTHENTICATION SYSTEM
+// ===========================================
+
+
+// ===========================================
 // SUPABASE CONFIGURATION
-// ======================================
+// ===========================================
 
-const SUPABASE_URL ="https://egqruhbudiubvkxjonub.supabase.co";
+const SUPABASE_URL =
+  "https://egqruhbudiubvkxjonub.supabase.co";
 
-const SUPABASE_KEY ="sb_publishable_eZB6mHH69eHHXgnnJBP4nQ_6LBhlluo";
+const SUPABASE_KEY =
+  "sb_publishable_eZB6mHH69eHHXgnnJBP4nQ_6LBhlluo";
 
-// ======================================
+
+// ===========================================
+// DASHBOARD ROUTING
+// ===========================================
+
+// All professional roles are configured here.
+//
+// Once the corresponding dashboard exists,
+// no additional login-code changes are needed.
+
+const roleDashboards = {
+
+  admin: "./admin.html",
+
+  physician: "./physician.html",
+
+  nurse: "./nurse.html",
+
+  laboratory: "./laboratory.html",
+
+  hims: "./hims.html"
+
+};
+
+
+// ===========================================
 // INITIALIZE SUPABASE
-// ======================================
+// ===========================================
 
-let supabaseClient;
+let supabaseClient = null;
 
-const message = document.getElementById("message");
-const button = document.getElementById("loginButton");
+const loginForm =
+  document.getElementById("loginForm");
+
+const loginButton =
+  document.getElementById("loginButton");
+
+const message =
+  document.getElementById("message");
+
+function showMessage(text, color = "#dc2626") {
+
+  message.style.color = color;
+
+  message.textContent = text;
+
+}
 
 try {
+
+  if (!window.supabase) {
+
+    throw new Error(
+      "Authentication library could not be loaded."
+    );
+
+  }
 
   supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
@@ -182,179 +296,253 @@ try {
 
 } catch (error) {
 
-  message.textContent =
-    "Supabase configuration error. Check your URL and key.";
-
-}
-
-// ======================================
-// LOGIN FUNCTION
-// ======================================
-
-document.getElementById("loginForm")
-.addEventListener("submit", async function(event) {
-
-  event.preventDefault();
-
-  if (!supabaseClient) {
-    message.textContent = "Authentication is not configured.";
-    return;
-  }
-
-  const email = document.getElementById("email").value.trim();
-
-  const password = document.getElementById("password").value;
-
-  button.disabled = true;
-  button.textContent = "Signing in...";
-
-  message.textContent = "";
-
-  try {
-
-    const { data, error } =
-      await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-    if (error) {
-      throw error;
-    }
-
-    // Check the signed-in user's profile.
-
-    const { data: profile, error: profileError } =
-      await supabaseClient
-        .from("profiles")
-        .select("username, role, account_status")
-        .eq("id", data.user.id)
-        .single();
-
-    if (profileError || !profile) {
-      await supabaseClient.auth.signOut();
-      throw new Error("No authorized ClinixAI profile found.");
-    }
-
-    // ======================================
-// ACCOUNT STATUS VERIFICATION
-// ======================================
-
-const accountStatus = String(
-  profile.account_status || ""
-).toLowerCase();
-
-const userRole = String(
-  profile.role || ""
-).toLowerCase();
-
-// Pending users cannot enter dashboards.
-if (accountStatus === "pending") {
-
-  await supabaseClient.auth.signOut();
-
-  message.style.color = "#b45309";
-
-  message.textContent =
-    "Your account has been created successfully. " +
-    "Please wait for administrator approval before accessing ClinixAI.";
-
-  return;
-}
-
-// Suspended users cannot enter dashboards.
-if (accountStatus === "suspended") {
-
-  await supabaseClient.auth.signOut();
-
-  message.style.color = "#dc2626";
-
-  message.textContent =
-    "Your ClinixAI account has been suspended. " +
-    "Please contact your administrator.";
-
-  return;
-}
-
-// Reject unexpected account statuses.
-if (accountStatus !== "active") {
-
-  await supabaseClient.auth.signOut();
-
-  throw new Error(
-    "Your account status could not be verified."
+  console.error(
+    "Supabase initialization failed:",
+    error
   );
-}
 
-// ======================================
-// ROLE-BASED DASHBOARD ROUTING
-// ======================================
-
-const roleDashboards = {
-  admin: "./admin.html",
-  physician: "./physician.html",
-  nurse: "./nurse.html",
-  laboratory: "./laboratory.html",
-  hims: "./hims.html"
-};
-
-const destination = roleDashboards[userRole];
-
-if (!destination) {
-
-  await supabaseClient.auth.signOut();
-
-  throw new Error(
-    "Your account has an unrecognized role. Contact your administrator."
+  showMessage(
+    "Unable to connect to the authentication service."
   );
+
+  loginButton.disabled = true;
+
 }
 
-// ======================================
-// CLINIXAI 3.0 STAFF ACCESS
-// ======================================
 
-const availableRoles = [
-  "admin",
-  "physician",
-  "nurse"
-];
+// ===========================================
+// CHECK ACCOUNT AND DETERMINE DESTINATION
+// ===========================================
 
-if (!availableRoles.includes(userRole)) {
+async function getAuthorizedDashboard(user) {
 
-  await supabaseClient.auth.signOut();
+  const { data: profile, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("username, role, account_status")
+      .eq("id", user.id)
+      .single();
 
-  message.style.color = "#b45309";
+  if (error || !profile) {
 
-  message.textContent =
-    "Your professional dashboard is still under development.";
-
-  return;
-}
-
-message.style.color = "#15803d";
-
-message.textContent =
-  "Welcome, " + profile.username +
-  "! Login successful.";
-
-button.textContent = "Opening Dashboard...";
-
-window.location.href = destination;
-  } catch (error) {
-
-    message.style.color = "#dc2626";
-    message.textContent = error.message;
-
-  } finally {
-
-    button.disabled = false;
-    button.textContent = "🔐 Sign In";
+    throw new Error(
+      "Unable to verify your staff profile. Contact your administrator."
+    );
 
   }
 
-});
+  const accountStatus =
+    String(profile.account_status || "")
+      .trim()
+      .toLowerCase();
+
+  const userRole =
+    String(profile.role || "")
+      .trim()
+      .toLowerCase();
+
+
+  // ========================================
+  // ACCOUNT STATUS VERIFICATION
+  // ========================================
+
+  if (accountStatus === "pending") {
+
+    throw new Error(
+      "Your account is pending administrator approval."
+    );
+
+  }
+
+  if (accountStatus === "suspended") {
+
+    throw new Error(
+      "Your account has been suspended. Contact your administrator."
+    );
+
+  }
+
+  if (accountStatus !== "active") {
+
+    throw new Error(
+      "Your account is not authorized to access ClinixAI."
+    );
+
+  }
+
+
+  // ========================================
+  // PROFESSIONAL ROLE VERIFICATION
+  // ========================================
+
+  const destination =
+    roleDashboards[userRole];
+
+  if (!destination) {
+
+    throw new Error(
+      "Your professional role is not recognized. Contact your administrator."
+    );
+
+  }
+
+  return {
+
+    destination,
+
+    username: profile.username || "Staff",
+
+    role: userRole
+
+  };
+
+}
+
+
+// ===========================================
+// STAFF LOGIN
+// ===========================================
+
+loginForm.addEventListener(
+  "submit",
+  async function(event) {
+
+    event.preventDefault();
+
+    if (!supabaseClient) {
+
+      showMessage(
+        "Authentication service is unavailable."
+      );
+
+      return;
+
+    }
+
+    const email =
+      document.getElementById("email")
+        .value.trim();
+
+    const password =
+      document.getElementById("password")
+        .value;
+
+    loginButton.disabled = true;
+
+    loginButton.textContent =
+      "Verifying Account...";
+
+    showMessage(
+      "Checking your login details...",
+      "#0369a1"
+    );
+
+    try {
+
+      // =====================================
+      // AUTHENTICATE USER
+      // =====================================
+
+      const { data, error } =
+        await supabaseClient.auth
+          .signInWithPassword({
+
+            email: email,
+
+            password: password
+
+          });
+
+      if (error) {
+
+        throw new Error(error.message);
+
+      }
+
+      if (!data.user) {
+
+        throw new Error(
+          "Unable to verify your account."
+        );
+
+      }
+
+
+      // =====================================
+      // VERIFY ROLE AND ACCOUNT STATUS
+      // =====================================
+
+      const authorization =
+        await getAuthorizedDashboard(
+          data.user
+        );
+
+
+      // =====================================
+      // SUCCESSFUL LOGIN
+      // =====================================
+
+      showMessage(
+        "Welcome, " +
+        authorization.username +
+        "! Opening your " +
+        authorization.role +
+        " dashboard...",
+        "#15803d"
+      );
+
+      loginButton.textContent =
+        "Opening Dashboard...";
+
+
+      // =====================================
+      // AUTOMATIC DASHBOARD REDIRECTION
+      // =====================================
+
+      window.location.replace(
+        authorization.destination
+      );
+
+    } catch (error) {
+
+      console.error(
+        "ClinixAI login error:",
+        error
+      );
+
+      // Sign out if authentication succeeded
+      // but profile authorization failed.
+
+      try {
+
+        await supabaseClient.auth.signOut();
+
+      } catch (signOutError) {
+
+        console.error(
+          "Sign-out cleanup failed:",
+          signOutError
+        );
+
+      }
+
+      showMessage(
+        error.message ||
+        "Login failed. Please try again."
+      );
+
+      loginButton.disabled = false;
+
+      loginButton.textContent =
+        "Sign In";
+
+    }
+
+  }
+);
 
 </script>
 
 </body>
-                                 </html>
+
+</html>
