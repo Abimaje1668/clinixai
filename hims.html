@@ -37,7 +37,7 @@ header p {
 }
 
 main {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: auto;
   padding: 18px;
 }
@@ -55,9 +55,14 @@ h2 {
   font-size: 21px;
 }
 
+h3 {
+  color: #334155;
+  font-size: 17px;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 14px;
   margin-bottom: 18px;
 }
@@ -84,8 +89,8 @@ button {
   border: none;
   background: #0284c7;
   color: white;
-  padding: 13px 17px;
-  margin: 7px 5px 5px 0;
+  padding: 12px 16px;
+  margin: 5px 5px 5px 0;
   border-radius: 9px;
   font-size: 14px;
   cursor: pointer;
@@ -95,8 +100,61 @@ button:hover {
   background: #0369a1;
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondary {
+  background: #475569;
+}
+
+.secondary:hover {
+  background: #334155;
+}
+
 .danger {
   background: #dc2626;
+}
+
+.danger:hover {
+  background: #b91c1c;
+}
+
+.success {
+  background: #15803d;
+}
+
+.success:hover {
+  background: #166534;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  background: white;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid #38bdf8;
+  border-color: #0284c7;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .status {
@@ -111,10 +169,121 @@ button:hover {
   padding: 15px;
   border-radius: 8px;
   font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.message {
+  padding: 13px;
+  border-radius: 8px;
+  margin: 12px 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.message.success-message {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.message.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.message.info-message {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 13px;
+}
+
+th {
+  background: #f8fafc;
+  color: #334155;
+}
+
+tr:hover td {
+  background: #f8fafc;
+}
+
+.patient-number {
+  font-weight: bold;
+  color: #0369a1;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.actions button {
+  margin: 0;
+  padding: 8px 10px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.toolbar input {
+  flex: 1;
+  min-width: 200px;
+  margin: 0;
+}
+
+.empty {
+  text-align: center;
+  padding: 25px;
+  color: #64748b;
 }
 
 [hidden] {
   display: none !important;
+}
+
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 24px;
+  }
+
+  main {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .stat {
+    padding: 15px;
+  }
 }
 </style>
 </head>
@@ -128,120 +297,276 @@ button:hover {
 
 <main>
 
+<!-- AUTHENTICATION LOADING -->
+
 <section id="loading" class="card">
   <h2>Verifying HIMS Access...</h2>
-  <p class="status">
-    Please wait while we verify your account.
-  </p>
+  <p class="status">Please wait while we verify your account.</p>
 </section>
+
+<!-- ACCESS DENIED -->
 
 <section id="denied" class="card" hidden>
   <h2>Access Denied</h2>
   <p id="error"></p>
 
-  <button onclick="location.href='./login.html'">
+  <button id="returnLoginButton">
     Return to Login
   </button>
 </section>
 
+<!-- MAIN DASHBOARD -->
+
 <div id="dashboard" hidden>
 
-<section class="card">
-  <h2 id="welcome">Welcome, HIMS Officer</h2>
+  <section class="card">
+    <h2 id="welcome">Welcome, HIMS Officer</h2>
 
-  <p id="accountInfo" class="status"></p>
+    <p id="accountInfo" class="status"></p>
 
-  <button class="danger" id="logoutButton">
-    🚪 Sign Out
-  </button>
-</section>
+    <button class="danger" id="logoutButton">
+      🚪 Sign Out
+    </button>
+  </section>
 
-<section class="grid">
+  <!-- DASHBOARD STATISTICS -->
 
-  <div class="stat">
-    <strong>0</strong>
-    <span>Registered Patients</span>
-  </div>
+  <section class="grid">
 
-  <div class="stat">
-    <strong>0</strong>
-    <span>Today's Registrations</span>
-  </div>
+    <div class="stat">
+      <strong id="totalPatients">—</strong>
+      <span>Registered Patients</span>
+    </div>
 
-  <div class="stat">
-    <strong>0</strong>
-    <span>Patient Visits</span>
-  </div>
+    <div class="stat">
+      <strong id="todayPatients">—</strong>
+      <span>Today's Registrations</span>
+    </div>
 
-  <div class="stat">
-    <strong>0</strong>
-    <span>Medical Records</span>
-  </div>
+    <div class="stat">
+      <strong>—</strong>
+      <span>Patient Visits — Next Phase</span>
+    </div>
 
-</section>
+    <div class="stat">
+      <strong>—</strong>
+      <span>Medical Records — Next Phase</span>
+    </div>
 
-<section class="card">
+  </section>
 
-<h2>📁 Health Information Management Workspace</h2>
+  <!-- MAIN WORKSPACE -->
 
-<p>
-Manage patient registration and medical records.
-Select an activity below.
-</p>
+  <section class="card">
 
-<button onclick="featureNotice('Patient Registration')">
-  👤 Register Patient
-</button>
+    <h2>📁 HIMS Workspace</h2>
 
-<button onclick="featureNotice('Patient Search')">
-  🔎 Search Patients
-</button>
+    <p>
+      Register patients, search existing records,
+      and manage patient demographics.
+    </p>
 
-<button onclick="featureNotice('Patient Records')">
-  📋 Patient Records
-</button>
+    <button id="showRegistrationButton">
+      ➕ Register Patient
+    </button>
 
-<button onclick="featureNotice('Patient Visits')">
-  🏥 Patient Visits
-</button>
+    <button id="showPatientsButton" class="secondary">
+      🔎 Search Patients
+    </button>
 
-<button onclick="featureNotice('Medical Records Reports')">
-  📊 Medical Records Reports
-</button>
+    <button id="refreshButton" class="secondary">
+      🔄 Refresh Records
+    </button>
 
-</section>
+  </section>
 
-<section class="card">
+  <!-- GENERAL MESSAGE -->
 
-<h2>📊 HIMS Activities</h2>
+  <div id="globalMessage" hidden></div>
 
-<p>
-Patient registrations, patient visits,
-record updates and other authorized
-health information activities will appear here.
-</p>
+  <!-- PATIENT REGISTRATION FORM -->
 
-<p class="status">
-  Patient record management is under development.
-</p>
+  <section id="registrationSection" class="card" hidden>
 
-</section>
+    <h2>👤 Patient Registration</h2>
 
-<section class="notice">
+    <p class="status">
+      Enter the patient's demographic information.
+      Required fields are marked with an asterisk (*).
+    </p>
 
-<strong>⚠️ Data Protection Notice</strong>
+    <form id="registrationForm">
 
-<p>
-ClinixAI is currently a demonstration application.
-Use fictional patient information only.
-</p>
+      <div class="form-grid">
 
-<p>
-Patient records must be protected against
-unauthorized access, disclosure and modification.
-</p>
+        <label>
+          Full Name *
+          <input
+            type="text"
+            id="fullName"
+            name="full_name"
+            maxlength="150"
+            autocomplete="name"
+            required
+            placeholder="Enter patient's full name"
+          >
+        </label>
 
-</section>
+        <label>
+          Date of Birth *
+          <input
+            type="date"
+            id="dateOfBirth"
+            name="date_of_birth"
+            required
+          >
+        </label>
+
+        <label>
+          Sex *
+          <select id="sex" name="sex" required>
+            <option value="">Select sex</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+
+        <label>
+          Phone Number
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            maxlength="30"
+            autocomplete="tel"
+            placeholder="Enter phone number"
+          >
+        </label>
+
+      </div>
+
+      <label>
+        Residential Address
+        <textarea
+          id="address"
+          name="address"
+          maxlength="500"
+          rows="3"
+          autocomplete="street-address"
+          placeholder="Enter residential address"
+        ></textarea>
+      </label>
+
+      <div id="registrationMessage" hidden></div>
+
+      <button type="submit" id="savePatientButton" class="success">
+        💾 Register Patient
+      </button>
+
+      <button type="button" id="cancelRegistrationButton"
+              class="secondary">
+        Cancel
+      </button>
+
+    </form>
+
+  </section>
+
+  <!-- PATIENT LIST -->
+
+  <section id="patientsSection" class="card">
+
+    <h2>📋 Patient Registry</h2>
+
+    <p class="status">
+      Search and open existing patient records.
+      Records displayed depend on your authorized database access.
+    </p>
+
+    <div class="toolbar">
+
+      <input
+        type="search"
+        id="patientSearch"
+        placeholder="Search by patient name or phone number..."
+        aria-label="Search patients"
+      >
+
+      <button id="clearSearchButton" class="secondary">
+        Clear
+      </button>
+
+    </div>
+
+    <p id="patientListStatus" class="status">
+      Loading patient records...
+    </p>
+
+    <div class="table-wrap">
+
+      <table>
+        <thead>
+          <tr>
+            <th>Patient Reference</th>
+            <th>Full Name</th>
+            <th>Date of Birth</th>
+            <th>Sex</th>
+            <th>Phone</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="patientTableBody"></tbody>
+      </table>
+
+    </div>
+
+  </section>
+
+  <!-- PATIENT DETAILS -->
+
+  <section id="patientDetailsSection" class="card" hidden>
+
+    <h2>🗂️ Patient Details</h2>
+
+    <div id="patientDetails"></div>
+
+    <button id="closeDetailsButton" class="secondary">
+      Close Details
+    </button>
+
+  </section>
+
+  <!-- ACTIVITIES -->
+
+  <section class="card">
+
+    <h2>📊 HIMS Activities</h2>
+
+    <p id="activityStatus" class="status">
+      Your patient registration activities will appear here.
+    </p>
+
+  </section>
+
+  <!-- PRIVACY NOTICE -->
+
+  <section class="notice">
+
+    <strong>⚠️ Data Protection Notice</strong>
+
+    <p>
+      ClinixAI is under development. Use fictional patient
+      information during testing.
+    </p>
+
+    <p>
+      Patient records must be protected against unauthorized
+      access, disclosure, and modification.
+    </p>
+
+  </section>
 
 </div>
 
@@ -251,10 +576,10 @@ unauthorized access, disclosure and modification.
 
 <script>
 
-// ======================================
+// ==========================================
 // CLINIXAI VERSION 3.0
-// HIMS DASHBOARD
-// ======================================
+// HIMS PATIENT REGISTRY
+// ==========================================
 
 const SUPABASE_URL =
   "https://egqruhbudiubvkxjonub.supabase.co";
@@ -262,27 +587,53 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_eZB6mHH69eHHXgnnJBP4nQ_6LBhlluo";
 
-const loading =
-  document.getElementById("loading");
+// ==========================================
+// PAGE ELEMENTS
+// ==========================================
 
-const denied =
-  document.getElementById("denied");
+const loading = document.getElementById("loading");
+const denied = document.getElementById("denied");
+const dashboard = document.getElementById("dashboard");
 
-const dashboard =
-  document.getElementById("dashboard");
+const globalMessage = document.getElementById("globalMessage");
 
-function showDenied(message) {
-  loading.hidden = true;
-  dashboard.hidden = true;
-  denied.hidden = false;
+const registrationSection =
+  document.getElementById("registrationSection");
 
-  document.getElementById("error").textContent =
-    message;
-}
+const patientsSection =
+  document.getElementById("patientsSection");
 
-let client;
+const patientDetailsSection =
+  document.getElementById("patientDetailsSection");
+
+const registrationForm =
+  document.getElementById("registrationForm");
+
+const patientTableBody =
+  document.getElementById("patientTableBody");
+
+const patientSearch =
+  document.getElementById("patientSearch");
+
+const patientListStatus =
+  document.getElementById("patientListStatus");
+
+const registrationMessage =
+  document.getElementById("registrationMessage");
+
+let client = null;
+let currentUser = null;
+let currentProfile = null;
+
+let patientsCache = [];
+let currentlyLoading = false;
+
+// ==========================================
+// SUPABASE INITIALIZATION
+// ==========================================
 
 try {
+
   if (!window.supabase) {
     throw new Error("Supabase library unavailable.");
   }
@@ -293,14 +644,103 @@ try {
   );
 
 } catch (error) {
+
+  console.error("Supabase initialization error:", error);
+
   showDenied(
-    "Unable to initialize authentication. Check your connection."
+    "Unable to initialize Supabase. Check your internet connection."
   );
+
 }
 
-// ======================================
-// VERIFY HIMS ACCOUNT
-// ======================================
+// ==========================================
+// SAFE MESSAGE DISPLAY
+// ==========================================
+
+function displayMessage(element, message, type = "info") {
+
+  element.textContent = message;
+
+  element.className = "message " + type + "-message";
+
+  element.hidden = false;
+
+}
+
+function clearMessage(element) {
+
+  element.textContent = "";
+  element.hidden = true;
+
+}
+
+function showGlobalMessage(message, type = "info") {
+
+  displayMessage(globalMessage, message, type);
+
+}
+
+function showDenied(message) {
+
+  loading.hidden = true;
+  dashboard.hidden = true;
+  denied.hidden = false;
+
+  document.getElementById("error").textContent = message;
+
+}
+
+// ==========================================
+// DATE FORMATTING
+// ==========================================
+
+function formatDate(value) {
+
+  if (!value) return "Not provided";
+
+  const date = new Date(value + "T00:00:00");
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString();
+
+}
+
+function formatDateTime(value) {
+
+  if (!value) return "Not available";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not available";
+  }
+
+  return date.toLocaleString();
+
+}
+
+// ==========================================
+// PATIENT REFERENCE
+// ==========================================
+
+// This reference is derived from the existing UUID.
+// It is NOT a separately stored hospital number.
+
+function getPatientReference(id) {
+
+  if (!id) return "Unavailable";
+
+  return "CLX-" +
+    id.replace(/-/g, "").slice(0, 8).toUpperCase();
+
+}
+
+// ==========================================
+// VERIFY USER ACCESS
+// ==========================================
 
 async function initializeHIMSDashboard() {
 
@@ -308,102 +748,316 @@ async function initializeHIMSDashboard() {
 
   try {
 
-    const { data, error } =
-      await client.auth.getUser();
+    const {
+      data,
+      error
+    } = await client.auth.getUser();
 
     if (error || !data.user) {
+
       window.location.replace("./login.html");
       return;
+
     }
 
-    const { data: profile, error: profileError } =
-      await client
-        .from("profiles")
-        .select("username, role, account_status")
-        .eq("id", data.user.id)
-        .single();
+    currentUser = data.user;
+
+    const {
+      data: profile,
+      error: profileError
+    } = await client
+      .from("profiles")
+      .select("username, role, account_status")
+      .eq("id", currentUser.id)
+      .single();
 
     if (profileError || !profile) {
+
+      console.error("Profile verification:", profileError);
+
       showDenied(
-        "Unable to verify your HIMS profile."
+        "Unable to verify your HIMS profile. Check your profile access."
       );
+
       return;
+
     }
 
-    const role = String(
-      profile.role || ""
-    ).trim().toLowerCase();
+    const role = String(profile.role || "")
+      .trim()
+      .toLowerCase();
 
-    const status = String(
-      profile.account_status || ""
-    ).trim().toLowerCase();
+    const status = String(profile.account_status || "")
+      .trim()
+      .toLowerCase();
 
     if (role !== "hims" || status !== "active") {
+
       showDenied(
-        "Only approved HIMS officers can access this dashboard."
+        "Only approved, active HIMS officers can access this dashboard."
       );
+
       return;
+
     }
 
+    currentProfile = profile;
+
     document.getElementById("welcome").textContent =
-      "Welcome, " +
-      (profile.username || "HIMS Officer") + "!";
+      "Welcome, " + (profile.username || "HIMS Officer") + "!";
 
     document.getElementById("accountInfo").textContent =
-      "Signed in as: " + data.user.email;
+      "Signed in as: " + (currentUser.email || "Authenticated user");
 
     loading.hidden = true;
     denied.hidden = true;
     dashboard.hidden = false;
 
+    await refreshDashboard();
+
   } catch (error) {
 
-    console.error("HIMS dashboard error:", error);
+    console.error("HIMS access error:", error);
 
     showDenied(
-      "Unable to verify access. Please try again."
+      "Unable to verify access. Please reload and try again."
     );
 
   }
+
 }
 
-// ======================================
-// SIGN OUT
-// ======================================
+// ==========================================
+// LOAD DASHBOARD DATA
+// ==========================================
 
-document.getElementById("logoutButton")
-  .addEventListener("click", async function() {
+async function refreshDashboard() {
 
-    if (!client) return;
+  await Promise.all([
+    loadPatientStatistics(),
+    loadPatients()
+  ]);
 
-    const { error } =
-      await client.auth.signOut();
+}
 
-    if (error) {
-      alert("Sign-out failed. Please try again.");
-      return;
-    }
+// ==========================================
+// LOAD PATIENT STATISTICS
+// ==========================================
 
-    window.location.replace("./login.html");
+async function loadPatientStatistics() {
+
+  try {
+
+    const {
+      count: total,
+      error: totalError
+    } = await client
+      .from("patients")
+      .select("id", {
+        count: "exact",
+        head: true
+      });
+
+    if (totalError) throw totalError;
+
+    document.getElementById("totalPatients").textContent =
+      total ?? 0;
+
+    // Calculate the current local day's boundaries.
+    const now = new Date();
+
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    const startOfTomorrow = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1
+    );
+
+    const {
+      count: today,
+      error: todayError
+    } = await client
+      .from("patients")
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .gte("created_at", startOfDay.toISOString())
+      .lt("created_at", startOfTomorrow.toISOString());
+
+    if (todayError) throw todayError;
+
+    document.getElementById("todayPatients").textContent =
+      today ?? 0;
+
+  } catch (error) {
+
+    console.error("Statistics error:", error);
+
+    document.getElementById("totalPatients").textContent = "—";
+    document.getElementById("todayPatients").textContent = "—";
+
+    showGlobalMessage(
+      "Patient statistics could not be loaded. Check your database access.",
+      "error"
+    );
+
+  }
+
+}
+
+// ==========================================
+// LOAD PATIENT RECORDS
+// ==========================================
+
+async function loadPatients() {
+
+  if (currentlyLoading) return;
+
+  currentlyLoading = true;
+
+  patientListStatus.textContent =
+    "Loading patient records...";
+
+  try {
+
+    const {
+      data,
+      error
+    } = await client
+      .from("patients")
+      .select(
+        "id, created_by, full_name, date_of_birth, sex, phone, address, created_at"
+      )
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(500);
+
+    if (error) throw error;
+
+    patientsCache = data || [];
+
+    renderPatients();
+
+    patientListStatus.textContent =
+      patientsCache.length === 500
+        ? "Showing the latest 500 accessible records. Additional records may exist."
+        : patientsCache.length + " patient record(s) loaded.";
+
+  } catch (error) {
+
+    console.error("Patient retrieval error:", error);
+
+    patientsCache = [];
+
+    patientTableBody.replaceChildren();
+
+    patientListStatus.textContent =
+      "Unable to load patient records. Check the patients SELECT policy and database connection.";
+
+    showGlobalMessage(
+      "Patient records could not be retrieved: " +
+      (error.message || "Database request failed."),
+      "error"
+    );
+
+  } finally {
+
+    currentlyLoading = false;
+
+  }
+
+}
+
+// ==========================================
+// RENDER PATIENT TABLE
+// ==========================================
+
+function renderPatients() {
+
+  const query = patientSearch.value.trim().toLowerCase();
+
+  const filteredPatients = patientsCache.filter(patient => {
+
+    const name = String(patient.full_name || "").toLowerCase();
+
+    const phone = String(patient.phone || "").toLowerCase();
+
+    const id = getPatientReference(patient.id).toLowerCase();
+
+    return (
+      name.includes(query) ||
+      phone.includes(query) ||
+      id.includes(query)
+    );
 
   });
 
-// ======================================
-// FUTURE HIMS FEATURES
-// ======================================
+  patientTableBody.replaceChildren();
 
-function featureNotice(feature) {
+  if (filteredPatients.length === 0) {
 
-  alert(
-    feature +
-    " will be available in the next development phase."
-  );
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
 
-}
+    cell.colSpan = 6;
 
-initializeHIMSDashboard();
+    cell.className = "empty";
 
-</script>
+    cell.textContent = query
+      ? "No matching patient was found."
+      : "No patient records are available.";
 
-</body>
-  </html>
+    row.appendChild(cell);
+    patientTableBody.appendChild(row);
+
+    return;
+
+  }
+
+  filteredPatients.forEach(patient => {
+
+    const row = document.createElement("tr");
+
+    const referenceCell = document.createElement("td");
+    referenceCell.className = "patient-number";
+    referenceCell.textContent =
+      getPatientReference(patient.id);
+
+    const nameCell = document.createElement("td");
+    nameCell.textContent = patient.full_name || "Not provided";
+
+    const dobCell = document.createElement("td");
+    dobCell.textContent = formatDate(patient.date_of_birth);
+
+    const sexCell = document.createElement("td");
+    sexCell.textContent = patient.sex || "Not provided";
+
+    const phoneCell = document.createElement("td");
+    phoneCell.textContent = patient.phone || "Not provided";
+
+    const actionsCell = document.createElement("td");
+    const actions = document.createElement("div");
+
+    actions.className = "actions";
+
+    const viewButton = document.createElement("button");
+
+    viewButton.textContent = "View";
+    viewButton.setAttribute(
+      "aria-label",
+      "View patient " + (patient.full_name || "")
+    );
+
+    viewButton.addEventListener("click", () => {
+      viewPatient(patient.id);
+    });
+
+    actions.appendChild(viewButton);
+    ac
