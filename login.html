@@ -309,17 +309,26 @@ if (!destination) {
   );
 }
 
-// The staff dashboards have not been created yet.
-// Only the existing administrator dashboard is ready.
-if (userRole !== "admin") {
+// ======================================
+// CLINIXAI 3.0
+// STAFF DASHBOARD ACCESS CONTROL
+// ======================================
+
+// Administrator and physician dashboards
+// are currently available.
+
+const availableRoles = ["admin", "physician"];
+
+if (!availableRoles.includes(userRole)) {
 
   await supabaseClient.auth.signOut();
 
   message.style.color = "#b45309";
 
   message.textContent =
-    "Your account is active, but your staff dashboard " +
-    "is not available yet. Please contact your administrator.";
+    "Your account is active, but your " +
+    "professional dashboard is still under development. " +
+    "Please contact your administrator.";
 
   return;
 }
