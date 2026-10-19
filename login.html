@@ -310,14 +310,14 @@ if (!destination) {
 }
 
 // ======================================
-// CLINIXAI 3.0
-// STAFF DASHBOARD ACCESS CONTROL
+// CLINIXAI 3.0 STAFF ACCESS
 // ======================================
 
-// Administrator and physician dashboards
-// are currently available.
-
-const availableRoles = ["admin", "physician"];
+const availableRoles = [
+  "admin",
+  "physician",
+  "nurse"
+];
 
 if (!availableRoles.includes(userRole)) {
 
@@ -326,9 +326,7 @@ if (!availableRoles.includes(userRole)) {
   message.style.color = "#b45309";
 
   message.textContent =
-    "Your account is active, but your " +
-    "professional dashboard is still under development. " +
-    "Please contact your administrator.";
+    "Your professional dashboard is still under development.";
 
   return;
 }
